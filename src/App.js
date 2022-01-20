@@ -1,9 +1,23 @@
 import "./App.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function App() {
   const [counter, setCounter] = useState(0);
   const [user, setUser] = useState({ name: "Akif", age: 30 });
+
+  useEffect(() => {
+    console.log("first mount and every render");
+    return () => {
+      console.log("every onmount")
+    }
+  });
+  useEffect(() => {
+    console.log("first mount and every counter change");
+    return () => {
+      console.log("after counter change onmount")
+    }
+  }, [counter]);
+
   return (
     <div className="App">
       {counter}
