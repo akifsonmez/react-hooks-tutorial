@@ -1,12 +1,32 @@
 import "./App.css";
-import { useState, useEffect, createContext, useContext } from "react";
+import {
+  useState,
+  useEffect,
+  createContext,
+  useContext,
+  useReducer,
+} from "react";
+
+const appStoreReducer = (state, action) => {
+  if (action.type === "INCREMENT") {
+    const newState = { ...state };
+    newState.counter = state.counter + 1;
+    return newState;
+  } else if (action.type === "DECREMENT") {
+    const newState = { ...state };
+    newState.counter = state.counter - 1;
+    return newState;
+  }
+};
+const initialAppStore = { counter: 0 };
 
 const ChildColorContext = createContext();
 
 function App() {
   const [counter, setCounter] = useState(0);
-  const [childColor, setChildColor] = useState("red")
+  const [childColor, setChildColor] = useState("red");
   const [user, setUser] = useState({ name: "Akif", age: 30 });
+  const [AppsStore, dispatch] = useReducer(appStoreReducer, initialAppStore);
 
   useEffect(() => {
     console.log("first mount and every render");
@@ -14,6 +34,7 @@ function App() {
       console.log("every onmount");
     };
   });
+
   useEffect(() => {
     console.log("first mount and every counter change");
     return () => {
@@ -23,6 +44,7 @@ function App() {
 
   return (
     <div className="App">
+      <h1>Counter with useState hook</h1>
       {counter}
       <br />
       <button
@@ -44,8 +66,6 @@ function App() {
         -
       </button>
       <br />
-      {user.name} is {user.age} years old.
-      <br />
       <button
         onClick={() =>
           setUser((prevUser) => {
@@ -55,11 +75,40 @@ function App() {
       >
         Correct the age
       </button>
+      <br />
+      {user.name} is {user.age} years old.
+      <br />
+      <h1>Counter with useReducer</h1>
+      {AppsStore.counter}
+      <br />
+      <button
+        onClick={() => {
+          dispatch({ type: "INCREMENT" });
+        }}
+      >
+        +
+      </button>
+      <br />
+      <button
+        onClick={() => {
+          // correct way to update state
+          dispatch({ type: "DECREMENT" });
+        }}
+      >
+        -
+      </button>
+      <br />
       <ChildColorContext.Provider value={childColor}>
         <ChildComponent />
         <AnotherChildComponent />
       </ChildColorContext.Provider>
-      <button onClick={() => setChildColor(prevColor => prevColor === "red" ? "blue" : "red")}>Switch color</button>
+      <button
+        onClick={() =>
+          setChildColor((prevColor) => (prevColor === "red" ? "blue" : "red"))
+        }
+      >
+        Switch color
+      </button>
     </div>
   );
 }
