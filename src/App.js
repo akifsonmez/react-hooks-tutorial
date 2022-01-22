@@ -8,6 +8,8 @@ import React, {
   useRef,
   useMemo,
   useCallback,
+  forwardRef,
+  useImperativeHandle,
 } from "react";
 
 const useLocalStorageValueCustomHook = (key, initialValue) => {
@@ -161,7 +163,6 @@ function App() {
       <br />
       <ChildColorContext.Provider value={childColor}>
         <ChildComponent />
-        <AnotherChildComponent />
       </ChildColorContext.Provider>
       <PureChildComponent logCounterWithCallback={logCounterWithCallback} />
       <button
@@ -186,13 +187,42 @@ function App() {
 
 const ChildComponent = () => {
   const color = useContext(ChildColorContext);
-  return <h1 style={{ color }}>This is a child component</h1>;
+  const inputRef = useRef();
+  return (
+    <div>
+      <h1 style={{ color }}>This is a child component</h1>
+      <button
+        onClick={() => {
+          inputRef.current.focusAndBlur();
+        }}
+      >
+        focus child component input
+      </button>
+      <AnotherChildComponent ref={inputRef} />
+    </div>
+  );
 };
 
-const AnotherChildComponent = () => {
+const AnotherChildComponent = forwardRef((props, ref) => {
   const color = useContext(ChildColorContext);
-  return <h2 style={{ color }}>Another child component</h2>;
-};
+  const inputRef = useRef();
+
+  useImperativeHandle(ref, () => ({
+    focusAndBlur: () => {
+      inputRef.current.focus();
+      setTimeout(() => {
+        inputRef.current.blur();
+      }, 2000);
+    },
+  }));
+
+  return (
+    <div>
+      <h2 style={{ color }}>Another child component</h2>
+      <input ref={inputRef} />
+    </div>
+  );
+});
 
 class PureChildComponent extends React.PureComponent {
   render() {
