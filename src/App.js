@@ -1,11 +1,13 @@
 import "./App.css";
-import {
+import React, {
   useState,
   useEffect,
   createContext,
   useContext,
   useReducer,
   useRef,
+  useMemo,
+  useCallback,
 } from "react";
 
 const appStoreReducer = (state, action) => {
@@ -48,10 +50,21 @@ function App() {
     inputRef.current.focus();
   }, []);
 
+  const counterSquareRootWithMemo = useMemo(() => {
+    console.log("counter square root calculated in with useMemo");
+    return Math.sqrt(counter);
+  }, [counter]);
+
+  const logCounterWithCallback = useCallback(() => {
+    console.log("log counter with user callback", counter);
+  }, [counter]);
+
   return (
     <div className="App">
       <h1>Counter with useState hook</h1>
       {counter}
+      <br />
+      Square Root withMemo: {counterSquareRootWithMemo}
       <br />
       <button
         onClick={() => {
@@ -108,6 +121,7 @@ function App() {
         <ChildComponent />
         <AnotherChildComponent />
       </ChildColorContext.Provider>
+      <PureChildComponent logCounterWithCallback={logCounterWithCallback} />
       <button
         onClick={() =>
           setChildColor((prevColor) => (prevColor === "red" ? "blue" : "red"))
@@ -137,5 +151,13 @@ const AnotherChildComponent = () => {
   const color = useContext(ChildColorContext);
   return <h2 style={{ color }}>Another child component</h2>;
 };
+
+class PureChildComponent extends React.PureComponent {
+  render() {
+    this.props.logCounterWithCallback();
+
+    return <h1>PureChildComponent</h1>;
+  }
+}
 
 export default App;
