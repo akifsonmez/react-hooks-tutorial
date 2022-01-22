@@ -5,6 +5,7 @@ import {
   createContext,
   useContext,
   useReducer,
+  useRef,
 } from "react";
 
 const appStoreReducer = (state, action) => {
@@ -27,6 +28,7 @@ function App() {
   const [childColor, setChildColor] = useState("red");
   const [user, setUser] = useState({ name: "Akif", age: 30 });
   const [AppsStore, dispatch] = useReducer(appStoreReducer, initialAppStore);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     console.log("first mount and every render");
@@ -41,6 +43,10 @@ function App() {
       console.log("after counter change onmount");
     };
   }, [counter]);
+
+  useEffect(() => {
+    inputRef.current.focus();
+  }, []);
 
   return (
     <div className="App">
@@ -108,6 +114,15 @@ function App() {
         }
       >
         Switch color
+      </button>
+      <br />
+      <input ref={inputRef} />
+      <button
+        onClick={() => {
+          inputRef.current.focus();
+        }}
+      >
+        focus to input
       </button>
     </div>
   );
