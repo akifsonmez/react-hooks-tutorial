@@ -10,6 +10,25 @@ import React, {
   useCallback,
 } from "react";
 
+const useLocalStorageValueCustomHook = (key, initialValue) => {
+  const [value, setValue] = useState(() => {
+    const storedValue = localStorage.getItem(key);
+    return storedValue || initialValue;
+  });
+
+  const setLocalStorageValue = (newValue) => {
+    let newStoredValue = value;
+    if (newValue instanceof Function) {
+      newStoredValue = newValue(value);
+    }
+
+    setValue(newStoredValue);
+    localStorage.setItem(key, newStoredValue);
+  };
+
+  return [value, setLocalStorageValue];
+};
+
 const appStoreReducer = (state, action) => {
   if (action.type === "INCREMENT") {
     const newState = { ...state };
@@ -31,6 +50,8 @@ function App() {
   const [user, setUser] = useState({ name: "Akif", age: 30 });
   const [AppsStore, dispatch] = useReducer(appStoreReducer, initialAppStore);
   const inputRef = useRef(null);
+  const [counterForCustomHook, setCounterForCustomHook] =
+    useLocalStorageValueCustomHook("counter", 2);
 
   useEffect(() => {
     console.log("first mount and every render");
@@ -110,8 +131,29 @@ function App() {
       <br />
       <button
         onClick={() => {
-          // correct way to update state
           dispatch({ type: "DECREMENT" });
+        }}
+      >
+        -
+      </button>
+      <br />
+      <br />
+      {user.name} is {user.age} years old.
+      <br />
+      <h1>Counter with customHook</h1>
+      {counterForCustomHook}
+      <br />
+      <button
+        onClick={() => {
+          setCounterForCustomHook((prev) => prev + 1);
+        }}
+      >
+        +
+      </button>
+      <br />
+      <button
+        onClick={() => {
+          setCounterForCustomHook((prev) => prev - 1);
         }}
       >
         -
